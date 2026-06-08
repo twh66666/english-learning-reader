@@ -1,0 +1,146 @@
+[
+  {
+    "word": "a",
+    "phonetic": "/ə/",
+    "translation": "art. 一个；一种",
+    "definition": "Used before a singular noun."
+  },
+  {
+    "word": "about",
+    "phonetic": "/əˈbaʊt/",
+    "translation": "prep. 关于；在……周围；大约",
+    "definition": "Concerning or approximately."
+  },
+  {
+    "word": "adventure",
+    "phonetic": "/ədˈventʃər/",
+    "translation": "n. 冒险；奇遇",
+    "definition": "An unusual, exciting, or dangerous experience."
+  },
+  {
+    "word": "and",
+    "phonetic": "/ænd/",
+    "translation": "conj. 和；与；而且",
+    "definition": "Used to connect words or clauses."
+  },
+  {
+    "word": "book",
+    "phonetic": "/bʊk/",
+    "translation": "n. 书；书籍",
+    "definition": "A written or printed work."
+  },
+  {
+    "word": "chapter",
+    "phonetic": "/ˈtʃæptər/",
+    "translation": "n. 章；回；篇",
+    "definition": "A main division of a book."
+  },
+  {
+    "word": "city",
+    "phonetic": "/ˈsɪti/",
+    "translation": "n. 城市",
+    "definition": "A large town."
+  },
+  {
+    "word": "dark",
+    "phonetic": "/dɑːrk/",
+    "translation": "adj. 黑暗的；深色的",
+    "definition": "With little or no light."
+  },
+  {
+    "word": "door",
+    "phonetic": "/dɔːr/",
+    "translation": "n. 门",
+    "definition": "A movable barrier at an entrance."
+  },
+  {
+    "word": "dream",
+    "phonetic": "/driːm/",
+    "translation": "n. 梦；梦想 v. 做梦",
+    "definition": "Images or thoughts during sleep; an ambition."
+  },
+  {
+    "word": "english",
+    "phonetic": "/ˈɪŋɡlɪʃ/",
+    "translation": "n. 英语 adj. 英国的；英语的",
+    "definition": "The language of England and many other countries."
+  },
+  {
+    "word": "friend",
+    "phonetic": "/frend/",
+    "translation": "n. 朋友",
+    "definition": "A person one knows and likes."
+  },
+  {
+    "word": "go",
+    "phonetic": "/ɡoʊ/",
+    "translation": "v. 去；走；进行",
+    "definition": "To move from one place to another."
+  },
+  {
+    "word": "good",
+    "phonetic": "/ɡʊd/",
+    "translation": "adj. 好的；有益的",
+    "definition": "Of high quality or pleasing."
+  },
+  {
+    "word": "house",
+    "phonetic": "/haʊs/",
+    "translation": "n. 房子；住宅",
+    "definition": "A building for people to live in."
+  },
+  {
+    "word": "love",
+    "phonetic": "/lʌv/",
+    "translation": "n. 爱 v. 爱；喜欢",
+    "definition": "A strong feeling of affection."
+  },
+  {
+    "word": "night",
+    "phonetic": "/naɪt/",
+    "translation": "n. 夜晚",
+    "definition": "The time of darkness between evening and morning."
+  },
+  {
+    "word": "read",
+    "phonetic": "/riːd/",
+    "translation": "v. 阅读；读",
+    "definition": "To look at and understand written words."
+  },
+  {
+    "word": "reader",
+    "phonetic": "/ˈriːdər/",
+    "translation": "n. 读者；阅读器",
+    "definition": "A person who reads or a device/app for reading."
+  },
+  {
+    "word": "story",
+    "phonetic": "/ˈstɔːri/",
+    "translation": "n. 故事；小说情节",
+    "definition": "An account of events, real or imagined."
+  },
+  {
+    "word": "the",
+    "phonetic": "/ðə/",
+    "translation": "art. 这；那；该",
+    "definition": "Used to refer to a specific noun."
+  },
+  {
+    "word": "time",
+    "phonetic": "/taɪm/",
+    "translation": "n. 时间；时刻",
+    "definition": "The continued progress of existence and events."
+  },
+  {
+    "word": "word",
+    "phonetic": "/wɜːrd/",
+    "translation": "n. 单词；话语",
+    "definition": "A unit of language."
+  },
+  {
+    "word": "world",
+    "phonetic": "/wɜːrld/",
+    "translation": "n. 世界",
+    "definition": "The earth and all people and things on it."
+  }
+]
