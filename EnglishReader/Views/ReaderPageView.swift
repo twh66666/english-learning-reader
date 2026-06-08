@@ -5,6 +5,7 @@ struct ReaderPageView: UIViewRepresentable {
     let text: String
     let settings: ReaderSettings
     let onWordTap: (String) -> Void
+    let onBlankTap: () -> Void
 
     func makeUIView(context: Context) -> TappableTextView {
         let textView = TappableTextView()
@@ -15,6 +16,7 @@ struct ReaderPageView: UIViewRepresentable {
         textView.textContainerInset = .zero
         textView.textContainer.lineFragmentPadding = 0
         textView.onWordTap = onWordTap
+        textView.onBlankTap = onBlankTap
         return textView
     }
 
@@ -36,6 +38,7 @@ struct ReaderPageView: UIViewRepresentable {
 
 final class TappableTextView: UITextView {
     var onWordTap: ((String) -> Void)?
+    var onBlankTap: (() -> Void)?
 
     override init(frame: CGRect, textContainer: NSTextContainer?) {
         super.init(frame: frame, textContainer: textContainer)
@@ -51,7 +54,10 @@ final class TappableTextView: UITextView {
         let location = recognizer.location(in: self)
         guard let position = closestPosition(to: location) else { return }
         let index = offset(from: beginningOfDocument, to: position)
-        guard let word = WordTokenizer.word(at: index, in: text) else { return }
+        guard let word = WordTokenizer.word(at: index, in: text) else {
+            onBlankTap?()
+            return
+        }
         onWordTap?(word)
     }
 }

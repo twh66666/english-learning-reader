@@ -7,7 +7,7 @@ final class VolumeButtonPageController: ObservableObject {
     var onPreviousPage: (() -> Void)?
 
     private var observation: NSKeyValueObservation?
-    private var baselineVolume: Float = AVAudioSession.sharedInstance().outputVolume
+    private var baselineVolume: Float = 0.5
     private let volumeView = MPVolumeView(frame: .zero)
     private var isResetting = false
 
@@ -19,7 +19,8 @@ final class VolumeButtonPageController: ObservableObject {
         }
 
         installHiddenVolumeView()
-        baselineVolume = AVAudioSession.sharedInstance().outputVolume
+        baselineVolume = 0.5
+        resetSystemVolume(to: baselineVolume)
 
         observation = AVAudioSession.sharedInstance().observe(\.outputVolume, options: [.new]) { [weak self] _, change in
             guard let self, let value = change.newValue else { return }

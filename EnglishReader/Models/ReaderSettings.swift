@@ -40,5 +40,5 @@ struct ReaderSettings: Codable, Equatable {
     var lineSpacing: Double = 8
     var theme: ReaderTheme = .paper
     var brightness: Double = Double(UIScreen.main.brightness)
-    var volumePagingEnabled: Bool = false
+    var volumePagingEnabled: Bool = true
 }

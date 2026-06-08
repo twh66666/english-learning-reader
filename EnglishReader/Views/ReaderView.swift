@@ -9,7 +9,7 @@ struct ReaderView: View {
     @State private var pages: [String] = []
     @State private var selectedEntry: DictionaryEntry?
     @State private var selectedMissingWord: String?
-    @State private var isSettingsPresented = false
+    @State private var isControlsVisible = false
     @State private var isChaptersPresented = false
     @StateObject private var volumeController = VolumeButtonPageController()
 
@@ -23,28 +23,18 @@ struct ReaderView: View {
                 settings.theme.backgroundColor
                     .ignoresSafeArea()
 
-                VStack(spacing: 0) {
-                    header
-                    ReaderPageView(
-                        text: currentPageText,
-                        settings: settings,
-                        onWordTap: handleWordTap
-                    )
-                    .padding(.horizontal, 22)
-                    .padding(.vertical, 12)
-                    .gesture(
-                        DragGesture(minimumDistance: 24)
-                            .onEnded { value in
-                                if value.translation.width < -30 {
-                                    nextPage()
-                                } else if value.translation.width > 30 {
-                                    previousPage()
-                                }
-                            }
-                    )
-                    footer
+                pageTabs(size: proxy.size)
+
+                if isControlsVisible {
+                    VStack(spacing: 0) {
+                        topBar
+                        Spacer()
+                        bottomSettingsBar
+                    }
+                    .transition(.opacity)
                 }
             }
+            .animation(.easeInOut(duration: 0.18), value: isControlsVisible)
             .onAppear {
                 applyBrightness()
                 configureVolumeController()
@@ -60,10 +50,6 @@ struct ReaderView: View {
             }
             .onChange(of: book.progress.chapterIndex) { _, _ in
                 repaginate(pageSize: pageSize(from: proxy.size))
-            }
-            .sheet(isPresented: $isSettingsPresented) {
-                ReaderSettingsView(settings: $settings)
-                    .presentationDetents([.medium])
             }
             .sheet(isPresented: $isChaptersPresented) {
                 ChapterListView(book: book, selectedIndex: book.progress.chapterIndex) { index in
@@ -81,7 +67,7 @@ struct ReaderView: View {
             )) {
                 Button("知道了", role: .cancel) { selectedMissingWord = nil }
             } message: {
-                Text("离线词典里还没有 “\(selectedMissingWord ?? "")”。")
+                Text("离线词典里暂时没有 “\(selectedMissingWord ?? "")”。")
             }
         }
         .toolbar(.hidden, for: .navigationBar)
@@ -92,17 +78,44 @@ struct ReaderView: View {
         return book.chapters[book.progress.chapterIndex]
     }
 
-    private var currentPageText: String {
-        guard pages.indices.contains(book.progress.pageIndex) else { return currentChapter?.content ?? "" }
-        return pages[book.progress.pageIndex]
+    private var pageSelection: Binding<Int> {
+        Binding(
+            get: { book.progress.pageIndex },
+            set: { newValue in
+                guard pages.indices.contains(newValue) else { return }
+                book.progress.pageIndex = newValue
+                persistProgress()
+            }
+        )
     }
 
-    private var header: some View {
+    private func pageTabs(size: CGSize) -> some View {
+        TabView(selection: pageSelection) {
+            ForEach(0..<max(pages.count, 1), id: \.self) { index in
+                ReaderPageView(
+                    text: pages.indices.contains(index) ? pages[index] : "",
+                    settings: settings,
+                    onWordTap: handleWordTap,
+                    onBlankTap: toggleControls
+                )
+                .padding(.horizontal, 24)
+                .padding(.top, 34)
+                .padding(.bottom, 28)
+                .frame(width: size.width, height: size.height)
+                .tag(index)
+            }
+        }
+        .tabViewStyle(.page(indexDisplayMode: .never))
+        .ignoresSafeArea()
+    }
+
+    private var topBar: some View {
         HStack(spacing: 12) {
             Button {
                 isChaptersPresented = true
             } label: {
                 Image(systemName: "list.bullet")
+                    .frame(width: 40, height: 40)
             }
 
             VStack(alignment: .leading, spacing: 2) {
@@ -116,43 +129,102 @@ struct ReaderView: View {
             }
 
             Spacer()
-
-            Button {
-                isSettingsPresented = true
-            } label: {
-                Image(systemName: "textformat.size")
-            }
         }
         .foregroundStyle(settings.theme.textColor)
-        .padding(.horizontal, 18)
-        .padding(.top, 10)
-        .padding(.bottom, 8)
+        .padding(.horizontal, 16)
+        .padding(.top, 8)
+        .padding(.bottom, 6)
+        .background(settings.theme.backgroundColor.opacity(0.94))
     }
 
-    private var footer: some View {
-        HStack {
-            Button(action: previousPage) {
-                Image(systemName: "chevron.left")
-                    .frame(width: 44, height: 44)
+    private var bottomSettingsBar: some View {
+        VStack(spacing: 12) {
+            HStack(spacing: 12) {
+                Button(action: previousPage) {
+                    Image(systemName: "chevron.left")
+                        .frame(width: 42, height: 38)
+                }
+                .disabled(book.progress.chapterIndex == 0 && book.progress.pageIndex == 0)
+
+                Button {
+                    isChaptersPresented = true
+                } label: {
+                    Label("章节", systemImage: "list.bullet")
+                        .font(.subheadline)
+                }
+
+                Spacer()
+
+                Text("\(book.progress.pageIndex + 1) / \(max(pages.count, 1))")
+                    .font(.caption)
+                    .monospacedDigit()
+
+                Spacer()
+
+                Button(action: nextPage) {
+                    Image(systemName: "chevron.right")
+                        .frame(width: 42, height: 38)
+                }
+                .disabled(isAtBookEnd)
             }
-            .disabled(book.progress.chapterIndex == 0 && book.progress.pageIndex == 0)
 
-            Spacer()
+            HStack(spacing: 14) {
+                Button {
+                    settings.fontSize = max(14, settings.fontSize - 1)
+                } label: {
+                    Image(systemName: "textformat.size.smaller")
+                        .frame(width: 36, height: 34)
+                }
 
-            Text("\(book.progress.pageIndex + 1) / \(max(pages.count, 1))")
-                .font(.caption)
+                Text("\(Int(settings.fontSize))")
+                    .font(.caption)
+                    .monospacedDigit()
+                    .frame(width: 28)
 
-            Spacer()
+                Button {
+                    settings.fontSize = min(34, settings.fontSize + 1)
+                } label: {
+                    Image(systemName: "textformat.size.larger")
+                        .frame(width: 36, height: 34)
+                }
 
-            Button(action: nextPage) {
-                Image(systemName: "chevron.right")
-                    .frame(width: 44, height: 44)
+                Spacer()
+
+                ForEach(ReaderTheme.allCases) { theme in
+                    Button {
+                        settings.theme = theme
+                    } label: {
+                        Circle()
+                            .fill(theme.backgroundColor)
+                            .overlay(Circle().stroke(settings.theme == theme ? settings.theme.textColor : Color.gray.opacity(0.35), lineWidth: settings.theme == theme ? 2 : 1))
+                            .frame(width: 28, height: 28)
+                    }
+                    .accessibilityLabel(theme.title)
+                }
             }
-            .disabled(isAtBookEnd)
+
+            HStack(spacing: 12) {
+                Image(systemName: "sun.min")
+                Slider(value: $settings.brightness, in: 0.05...1.0, step: 0.01)
+                Image(systemName: "sun.max")
+
+                Toggle(isOn: $settings.volumePagingEnabled) {
+                    Image(systemName: "speaker.wave.2")
+                }
+                .labelsHidden()
+                .frame(width: 54)
+            }
         }
         .foregroundStyle(settings.theme.textColor)
         .padding(.horizontal, 18)
-        .padding(.bottom, 8)
+        .padding(.top, 14)
+        .padding(.bottom, 18)
+        .background(settings.theme.backgroundColor.opacity(0.96))
+        .overlay(alignment: .top) {
+            Rectangle()
+                .fill(Color.black.opacity(settings.theme == .dark ? 0.35 : 0.12))
+                .frame(height: 0.5)
+        }
     }
 
     private var isAtBookEnd: Bool {
@@ -160,13 +232,14 @@ struct ReaderView: View {
     }
 
     private func pageSize(from size: CGSize) -> CGSize {
-        CGSize(width: max(size.width - 44, 80), height: max(size.height - 150, 120))
+        CGSize(width: max(size.width - 48, 80), height: max(size.height - 68, 120))
     }
 
     private func repaginate(pageSize: CGSize) {
+        let previousPage = book.progress.pageIndex
         let chapterText = currentChapter?.content ?? ""
         pages = ReaderPaginator().paginate(text: chapterText, pageSize: pageSize, settings: settings)
-        book.progress.pageIndex = min(book.progress.pageIndex, max(pages.count - 1, 0))
+        book.progress.pageIndex = min(previousPage, max(pages.count - 1, 0))
         persistProgress()
     }
 
@@ -186,8 +259,15 @@ struct ReaderView: View {
         } else if book.progress.chapterIndex > 0 {
             book.progress.chapterIndex -= 1
             book.progress.pageIndex = 0
+            repaginateToLastPageOfCurrentChapter()
         }
         persistProgress()
+    }
+
+    private func repaginateToLastPageOfCurrentChapter() {
+        let chapterText = currentChapter?.content ?? ""
+        pages = ReaderPaginator().paginate(text: chapterText, pageSize: CGSize(width: UIScreen.main.bounds.width - 48, height: UIScreen.main.bounds.height - 68), settings: settings)
+        book.progress.pageIndex = max(pages.count - 1, 0)
     }
 
     private func jumpToChapter(_ index: Int) {
@@ -209,6 +289,10 @@ struct ReaderView: View {
         } else {
             selectedMissingWord = word
         }
+    }
+
+    private func toggleControls() {
+        isControlsVisible.toggle()
     }
 
     private func applyBrightness() {

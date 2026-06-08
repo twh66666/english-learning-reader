@@ -68,6 +68,8 @@ EnglishReader/Resources/dictionary_seed.json
 
 替换文件名不变即可，无需联网查询。
 
+GitHub Actions 构建 IPA 时会自动下载 MIT 许可的 ECDICT 词库，并把完整英汉词库转换进 `dictionary_seed.json` 后再编译。因此 Actions 产出的 IPA 是完整离线词典版本；仓库里的小型 JSON 只是本地快速验证用的种子词库。
+
 ## 音量键翻页说明
 
 iOS 没有公开的“音量键按下事件”API。这里采用监听系统音量变化的方式实现翻页，阅读设置里可以开启或关闭。这个功能适合自用版本；如果计划上架 App Store，建议谨慎评估审核风险，或改成蓝牙键盘/耳机遥控翻页。

@@ -28,6 +28,15 @@ jobs:
             -project EnglishReader.xcodeproj \
             -scheme EnglishReader
 
+      - name: Build full offline dictionary
+        run: |
+          mkdir -p build
+          curl -L https://raw.githubusercontent.com/skywind3000/ECDICT/master/ecdict.csv \
+            -o build/ecdict.csv
+          python3 Scripts/build_dictionary.py \
+            build/ecdict.csv \
+            EnglishReader/Resources/dictionary_seed.json
+
       - name: Build
         run: |
           set -o pipefail
@@ -79,6 +88,15 @@ jobs:
           xcodebuild -resolvePackageDependencies \
             -project EnglishReader.xcodeproj \
             -scheme EnglishReader
+
+      - name: Build full offline dictionary
+        run: |
+          mkdir -p build
+          curl -L https://raw.githubusercontent.com/skywind3000/ECDICT/master/ecdict.csv \
+            -o build/ecdict.csv
+          python3 Scripts/build_dictionary.py \
+            build/ecdict.csv \
+            EnglishReader/Resources/dictionary_seed.json
 
       - name: Build unsigned app for device
         run: |
