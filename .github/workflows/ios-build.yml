@@ -31,6 +31,7 @@ jobs:
       - name: Build
         run: |
           set -o pipefail
+          mkdir -p build
           xcodebuild build \
             -project EnglishReader.xcodeproj \
             -scheme EnglishReader \
