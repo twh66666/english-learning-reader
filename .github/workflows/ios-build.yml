@@ -59,3 +59,59 @@ jobs:
             build/xcodebuild.log
           if-no-files-found: ignore
           retention-days: 7
+
+  build-unsigned-device-ipa:
+    name: Build Unsigned Device IPA
+    runs-on: macos-15
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show Xcode version
+        run: |
+          xcodebuild -version
+          xcodebuild -showsdks
+
+      - name: Resolve Swift packages
+        run: |
+          xcodebuild -resolvePackageDependencies \
+            -project EnglishReader.xcodeproj \
+            -scheme EnglishReader
+
+      - name: Build unsigned app for device
+        run: |
+          set -o pipefail
+          mkdir -p build
+          xcodebuild build \
+            -project EnglishReader.xcodeproj \
+            -scheme EnglishReader \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build/DerivedDataDevice \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            | tee build/xcodebuild-device.log
+
+      - name: Package unsigned IPA
+        if: success()
+        run: |
+          APP_PATH="build/DerivedDataDevice/Build/Products/Release-iphoneos/EnglishReader.app"
+          test -d "$APP_PATH"
+          rm -rf build/Payload
+          mkdir -p build/Payload
+          cp -R "$APP_PATH" build/Payload/
+          ditto -c -k --sequesterRsrc --keepParent build/Payload build/EnglishReader-unsigned-device.ipa
+
+      - name: Upload unsigned IPA
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: EnglishReader-unsigned-device-ipa
+          path: |
+            build/EnglishReader-unsigned-device.ipa
+            build/xcodebuild-device.log
+          if-no-files-found: ignore
+          retention-days: 7

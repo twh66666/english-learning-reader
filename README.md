@@ -36,7 +36,14 @@ EnglishReader-simulator-app.zip
 xcodebuild.log
 ```
 
-这个 workflow 不需要 Apple 开发者证书，因为它只构建模拟器版本。真机安装、TestFlight 或 App Store 包需要额外配置 Apple 证书和 provisioning profile。
+同时也会生成未签名真机 IPA：
+
+```text
+EnglishReader-unsigned-device.ipa
+xcodebuild-device.log
+```
+
+未签名 IPA 不能直接装到 iPhone。没有 Mac 时，可以在 Windows 上用 Sideloadly 等侧载工具，用自己的 Apple ID 对这个 IPA 签名并安装。免费 Apple ID 通常需要每 7 天重新签名安装一次。真机长期稳定安装、TestFlight 或 App Store 包需要额外配置 Apple 开发者证书和 provisioning profile。
 
 ## 离线词典
 
