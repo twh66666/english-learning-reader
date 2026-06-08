@@ -7,12 +7,13 @@ struct ChapterListView: View {
 
     var body: some View {
         NavigationStack {
-            List(book.chapters.indices, id: \.self) { index in
+            List {
+                ForEach(Array(book.chapters.enumerated()), id: \.element.id) { index, chapter in
                 Button {
                     onSelect(index)
                 } label: {
                     HStack {
-                        Text(book.chapters[index].title)
+                        Text(chapter.title)
                             .lineLimit(1)
                         Spacer()
                         if index == selectedIndex {
@@ -20,6 +21,7 @@ struct ChapterListView: View {
                                 .foregroundStyle(.accent)
                         }
                     }
+                }
                 }
             }
             .navigationTitle("章节")

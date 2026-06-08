@@ -1,6 +1,6 @@
 import Foundation
 
-struct Book: Identifiable, Codable, Equatable {
+struct Book: Identifiable, Codable, Hashable {
     var id: UUID
     var title: String
     var author: String?
@@ -25,7 +25,7 @@ struct Book: Identifiable, Codable, Equatable {
     }
 }
 
-struct BookChapter: Identifiable, Codable, Equatable {
+struct BookChapter: Identifiable, Codable, Hashable {
     var id: UUID
     var title: String
     var content: String
@@ -37,7 +37,7 @@ struct BookChapter: Identifiable, Codable, Equatable {
     }
 }
 
-struct ReadingProgress: Codable, Equatable {
+struct ReadingProgress: Codable, Hashable {
     var chapterIndex: Int
     var pageIndex: Int
 
