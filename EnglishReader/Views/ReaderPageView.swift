@@ -6,6 +6,8 @@ struct ReaderPageView: UIViewRepresentable {
     let settings: ReaderSettings
     let onWordTap: (String) -> Void
     let onBlankTap: () -> Void
+    let onPreviousPage: () -> Void
+    let onNextPage: () -> Void
 
     func makeUIView(context: Context) -> TappableTextView {
         let textView = TappableTextView()
@@ -17,6 +19,8 @@ struct ReaderPageView: UIViewRepresentable {
         textView.textContainer.lineFragmentPadding = 0
         textView.onWordTap = onWordTap
         textView.onBlankTap = onBlankTap
+        textView.onPreviousPage = onPreviousPage
+        textView.onNextPage = onNextPage
         return textView
     }
 
@@ -33,21 +37,38 @@ struct ReaderPageView: UIViewRepresentable {
                 .paragraphStyle: paragraph
             ]
         )
+        uiView.onWordTap = onWordTap
+        uiView.onBlankTap = onBlankTap
+        uiView.onPreviousPage = onPreviousPage
+        uiView.onNextPage = onNextPage
     }
 }
 
 final class TappableTextView: UITextView {
     var onWordTap: ((String) -> Void)?
     var onBlankTap: (() -> Void)?
+    var onPreviousPage: (() -> Void)?
+    var onNextPage: (() -> Void)?
 
     override init(frame: CGRect, textContainer: NSTextContainer?) {
         super.init(frame: frame, textContainer: textContainer)
-        addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTap(_:))))
+        installGestures()
     }
 
     required init?(coder: NSCoder) {
         super.init(coder: coder)
+        installGestures()
+    }
+
+    private func installGestures() {
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTap(_:))))
+        let leftSwipe = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipe(_:)))
+        leftSwipe.direction = .left
+        addGestureRecognizer(leftSwipe)
+
+        let rightSwipe = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipe(_:)))
+        rightSwipe.direction = .right
+        addGestureRecognizer(rightSwipe)
     }
 
     @objc private func handleTap(_ recognizer: UITapGestureRecognizer) {
@@ -59,5 +80,16 @@ final class TappableTextView: UITextView {
             return
         }
         onWordTap?(word)
+    }
+
+    @objc private func handleSwipe(_ recognizer: UISwipeGestureRecognizer) {
+        switch recognizer.direction {
+        case .left:
+            onNextPage?()
+        case .right:
+            onPreviousPage?()
+        default:
+            break
+        }
     }
 }

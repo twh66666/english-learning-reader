@@ -10,8 +10,10 @@ final class VolumeButtonPageController: ObservableObject {
     private var baselineVolume: Float = 0.5
     private let volumeView = MPVolumeView(frame: .zero)
     private var isResetting = false
+    private var lastActionAt = Date.distantPast
 
     func start() {
+        stop()
         do {
             try AVAudioSession.sharedInstance().setActive(true)
         } catch {
@@ -38,11 +40,18 @@ final class VolumeButtonPageController: ObservableObject {
 
     private func handleVolumeChange(_ value: Float) {
         guard !isResetting else { return }
+        guard abs(value - baselineVolume) > 0.02 else { return }
+        guard Date().timeIntervalSince(lastActionAt) > 0.45 else {
+            resetSystemVolume(to: baselineVolume)
+            return
+        }
+
+        lastActionAt = Date()
 
         if value > baselineVolume {
-            onNextPage?()
-        } else if value < baselineVolume {
             onPreviousPage?()
+        } else if value < baselineVolume {
+            onNextPage?()
         }
 
         resetSystemVolume(to: baselineVolume)
@@ -64,7 +73,7 @@ final class VolumeButtonPageController: ObservableObject {
     private func resetSystemVolume(to value: Float) {
         guard let slider = volumeView.subviews.compactMap({ $0 as? UISlider }).first else { return }
         isResetting = true
-        slider.value = value
+        slider.setValue(value, animated: false)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
             self.isResetting = false
         }

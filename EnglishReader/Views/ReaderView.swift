@@ -23,7 +23,18 @@ struct ReaderView: View {
                 settings.theme.backgroundColor
                     .ignoresSafeArea()
 
-                pageTabs(size: proxy.size)
+                ReaderPageView(
+                    text: currentPageText,
+                    settings: settings,
+                    onWordTap: handleWordTap,
+                    onBlankTap: toggleControls,
+                    onPreviousPage: previousPage,
+                    onNextPage: nextPage
+                )
+                .padding(.horizontal, 26)
+                .padding(.top, proxy.safeAreaInsets.top + 22)
+                .padding(.bottom, proxy.safeAreaInsets.bottom + 34)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
 
                 if isControlsVisible {
                     VStack(spacing: 0) {
@@ -38,7 +49,7 @@ struct ReaderView: View {
             .onAppear {
                 applyBrightness()
                 configureVolumeController()
-                repaginate(pageSize: pageSize(from: proxy.size))
+                repaginate(pageSize: pageSize(from: proxy))
             }
             .onDisappear {
                 volumeController.stop()
@@ -46,10 +57,10 @@ struct ReaderView: View {
             .onChange(of: settings) { _, _ in
                 applyBrightness()
                 configureVolumeController()
-                repaginate(pageSize: pageSize(from: proxy.size))
+                repaginate(pageSize: pageSize(from: proxy))
             }
             .onChange(of: book.progress.chapterIndex) { _, _ in
-                repaginate(pageSize: pageSize(from: proxy.size))
+                repaginate(pageSize: pageSize(from: proxy))
             }
             .sheet(isPresented: $isChaptersPresented) {
                 ChapterListView(book: book, selectedIndex: book.progress.chapterIndex) { index in
@@ -78,35 +89,9 @@ struct ReaderView: View {
         return book.chapters[book.progress.chapterIndex]
     }
 
-    private var pageSelection: Binding<Int> {
-        Binding(
-            get: { book.progress.pageIndex },
-            set: { newValue in
-                guard pages.indices.contains(newValue) else { return }
-                book.progress.pageIndex = newValue
-                persistProgress()
-            }
-        )
-    }
-
-    private func pageTabs(size: CGSize) -> some View {
-        TabView(selection: pageSelection) {
-            ForEach(0..<max(pages.count, 1), id: \.self) { index in
-                ReaderPageView(
-                    text: pages.indices.contains(index) ? pages[index] : "",
-                    settings: settings,
-                    onWordTap: handleWordTap,
-                    onBlankTap: toggleControls
-                )
-                .padding(.horizontal, 24)
-                .padding(.top, 34)
-                .padding(.bottom, 28)
-                .frame(width: size.width, height: size.height)
-                .tag(index)
-            }
-        }
-        .tabViewStyle(.page(indexDisplayMode: .never))
-        .ignoresSafeArea()
+    private var currentPageText: String {
+        guard pages.indices.contains(book.progress.pageIndex) else { return "" }
+        return pages[book.progress.pageIndex]
     }
 
     private var topBar: some View {
@@ -134,7 +119,7 @@ struct ReaderView: View {
         .padding(.horizontal, 16)
         .padding(.top, 8)
         .padding(.bottom, 6)
-        .background(settings.theme.backgroundColor.opacity(0.94))
+        .background(settings.theme.backgroundColor.opacity(0.95))
     }
 
     private var bottomSettingsBar: some View {
@@ -196,7 +181,12 @@ struct ReaderView: View {
                     } label: {
                         Circle()
                             .fill(theme.backgroundColor)
-                            .overlay(Circle().stroke(settings.theme == theme ? settings.theme.textColor : Color.gray.opacity(0.35), lineWidth: settings.theme == theme ? 2 : 1))
+                            .overlay(
+                                Circle().stroke(
+                                    settings.theme == theme ? settings.theme.textColor : Color.gray.opacity(0.35),
+                                    lineWidth: settings.theme == theme ? 2 : 1
+                                )
+                            )
                             .frame(width: 28, height: 28)
                     }
                     .accessibilityLabel(theme.title)
@@ -219,7 +209,7 @@ struct ReaderView: View {
         .padding(.horizontal, 18)
         .padding(.top, 14)
         .padding(.bottom, 18)
-        .background(settings.theme.backgroundColor.opacity(0.96))
+        .background(settings.theme.backgroundColor.opacity(0.97))
         .overlay(alignment: .top) {
             Rectangle()
                 .fill(Color.black.opacity(settings.theme == .dark ? 0.35 : 0.12))
@@ -231,8 +221,10 @@ struct ReaderView: View {
         book.progress.chapterIndex == book.chapters.count - 1 && book.progress.pageIndex >= pages.count - 1
     }
 
-    private func pageSize(from size: CGSize) -> CGSize {
-        CGSize(width: max(size.width - 48, 80), height: max(size.height - 68, 120))
+    private func pageSize(from proxy: GeometryProxy) -> CGSize {
+        let width = proxy.size.width - 52
+        let height = proxy.size.height - proxy.safeAreaInsets.top - proxy.safeAreaInsets.bottom - 104
+        return CGSize(width: max(width, 80), height: max(height, 120))
     }
 
     private func repaginate(pageSize: CGSize) {
@@ -266,7 +258,8 @@ struct ReaderView: View {
 
     private func repaginateToLastPageOfCurrentChapter() {
         let chapterText = currentChapter?.content ?? ""
-        pages = ReaderPaginator().paginate(text: chapterText, pageSize: CGSize(width: UIScreen.main.bounds.width - 48, height: UIScreen.main.bounds.height - 68), settings: settings)
+        let fallbackSize = CGSize(width: UIScreen.main.bounds.width - 52, height: UIScreen.main.bounds.height - 140)
+        pages = ReaderPaginator().paginate(text: chapterText, pageSize: fallbackSize, settings: settings)
         book.progress.pageIndex = max(pages.count - 1, 0)
     }
 

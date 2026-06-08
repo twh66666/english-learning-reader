@@ -8,6 +8,7 @@ struct ReaderPaginator {
         }
 
         let nsText = cleaned as NSString
+        let safePageSize = CGSize(width: pageSize.width, height: max(pageSize.height - 18, 80))
         var pages: [String] = []
         var startLocation = 0
         let attributes: [NSAttributedString.Key: Any] = [
@@ -26,13 +27,13 @@ struct ReaderPaginator {
                 let range = NSRange(location: startLocation, length: mid)
                 let candidate = nsText.substring(with: range) as NSString
                 let rect = candidate.boundingRect(
-                    with: pageSize,
+                    with: safePageSize,
                     options: [.usesLineFragmentOrigin, .usesFontLeading],
                     attributes: attributes,
                     context: nil
                 )
 
-                if rect.height <= pageSize.height {
+                if rect.height <= safePageSize.height {
                     best = mid
                     low = mid + 1
                 } else {
