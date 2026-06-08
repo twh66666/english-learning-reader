@@ -8,36 +8,40 @@ struct ChapterListView: View {
     var body: some View {
         NavigationStack {
             List {
-                ForEach(chapterRows) { row in
-                    Button {
-                        onSelect(row.index)
-                    } label: {
-                        HStack {
-                            Text(row.title)
-                                .lineLimit(1)
-                            Spacer()
-                            if row.index == selectedIndex {
-                                Image(systemName: "checkmark")
-                                    .foregroundStyle(.accent)
-                            }
-                        }
-                    }
+                ForEach(0..<book.chapters.count, id: \.self) { index in
+                    ChapterRowButton(
+                        index: index,
+                        title: book.chapters[index].title,
+                        isSelected: index == selectedIndex,
+                        onSelect: onSelect
+                    )
                 }
             }
             .navigationTitle("章节")
             .navigationBarTitleDisplayMode(.inline)
         }
     }
-
-    private var chapterRows: [ChapterRow] {
-        book.chapters.enumerated().map { index, chapter in
-            ChapterRow(id: chapter.id, index: index, title: chapter.title)
-        }
-    }
 }
 
-private struct ChapterRow: Identifiable {
-    let id: UUID
+private struct ChapterRowButton: View {
     let index: Int
     let title: String
+    let isSelected: Bool
+    let onSelect: (Int) -> Void
+
+    var body: some View {
+        Button {
+            onSelect(index)
+        } label: {
+            HStack {
+                Text(title)
+                    .lineLimit(1)
+                Spacer()
+                if isSelected {
+                    Image(systemName: "checkmark")
+                        .foregroundStyle(.accent)
+                }
+            }
+        }
+    }
 }
