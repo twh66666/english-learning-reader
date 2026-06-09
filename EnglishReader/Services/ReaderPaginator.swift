@@ -8,7 +8,7 @@ struct ReaderPaginator {
         }
 
         let nsText = cleaned as NSString
-        let safePageSize = CGSize(width: pageSize.width, height: max(pageSize.height - 20, 80))
+        let safePageSize = CGSize(width: pageSize.width, height: max(pageSize.height - 6, 80))
         let attributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.systemFont(ofSize: settings.fontSize),
             .paragraphStyle: paragraphStyle(settings: settings)
@@ -73,13 +73,8 @@ struct ReaderPaginator {
         guard length > 1 else { return proposedEnd }
 
         let page = nsText.substring(with: NSRange(location: start, length: length))
-        if let newline = page.range(of: "\n", options: .backwards),
-           page.distance(from: newline.lowerBound, to: page.endIndex) < 120 {
-            return start + page.distance(from: page.startIndex, to: newline.upperBound)
-        }
-
         if let space = page.rangeOfCharacter(from: .whitespacesAndNewlines, options: .backwards),
-           page.distance(from: space.lowerBound, to: page.endIndex) < 80 {
+           page.distance(from: space.lowerBound, to: page.endIndex) < 32 {
             return start + page.distance(from: page.startIndex, to: space.upperBound)
         }
 
@@ -89,7 +84,7 @@ struct ReaderPaginator {
     private func paragraphStyle(settings: ReaderSettings) -> NSParagraphStyle {
         let style = NSMutableParagraphStyle()
         style.lineSpacing = settings.lineSpacing
-        style.paragraphSpacing = settings.lineSpacing
+        style.paragraphSpacing = max(2, settings.lineSpacing * 0.5)
         style.lineBreakMode = .byWordWrapping
         return style
     }

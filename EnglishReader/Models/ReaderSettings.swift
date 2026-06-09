@@ -37,7 +37,7 @@ enum ReaderTheme: String, CaseIterable, Codable, Identifiable {
 
 struct ReaderSettings: Codable, Equatable {
     var fontSize: Double = 20
-    var lineSpacing: Double = 8
+    var lineSpacing: Double = 5
     var theme: ReaderTheme = .paper
     var brightness: Double = Double(UIScreen.main.brightness)
     var volumePagingEnabled: Bool = true

@@ -31,10 +31,8 @@ struct ReaderView: View {
                     onPreviousPage: previousPage,
                     onNextPage: nextPage
                 )
-                .padding(.horizontal, 26)
-                .padding(.top, proxy.safeAreaInsets.top + 22)
-                .padding(.bottom, proxy.safeAreaInsets.bottom + 34)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .frame(width: pageSize(from: proxy).width, height: pageSize(from: proxy).height, alignment: .topLeading)
+                .position(x: proxy.size.width / 2, y: pageTopInset(from: proxy) + pageSize(from: proxy).height / 2)
 
                 if isControlsVisible {
                     VStack(spacing: 0) {
@@ -222,9 +220,17 @@ struct ReaderView: View {
     }
 
     private func pageSize(from proxy: GeometryProxy) -> CGSize {
-        let width = proxy.size.width - 52
-        let height = proxy.size.height - proxy.safeAreaInsets.top - proxy.safeAreaInsets.bottom - 104
+        let width = proxy.size.width - 40
+        let height = proxy.size.height - pageTopInset(from: proxy) - pageBottomInset(from: proxy)
         return CGSize(width: max(width, 80), height: max(height, 120))
+    }
+
+    private func pageTopInset(from proxy: GeometryProxy) -> CGFloat {
+        max(proxy.safeAreaInsets.top + 8, 16)
+    }
+
+    private func pageBottomInset(from proxy: GeometryProxy) -> CGFloat {
+        max(proxy.safeAreaInsets.bottom + 10, 18)
     }
 
     private func repaginate(pageSize: CGSize) {
@@ -258,7 +264,7 @@ struct ReaderView: View {
 
     private func repaginateToLastPageOfCurrentChapter() {
         let chapterText = currentChapter?.content ?? ""
-        let fallbackSize = CGSize(width: UIScreen.main.bounds.width - 52, height: UIScreen.main.bounds.height - 140)
+        let fallbackSize = CGSize(width: UIScreen.main.bounds.width - 40, height: UIScreen.main.bounds.height - 96)
         pages = ReaderPaginator().paginate(text: chapterText, pageSize: fallbackSize, settings: settings)
         book.progress.pageIndex = max(pages.count - 1, 0)
     }

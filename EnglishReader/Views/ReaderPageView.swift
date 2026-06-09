@@ -22,7 +22,7 @@ struct ReaderPageView: UIViewRepresentable {
     func updateUIView(_ uiView: ReaderTextPageUIView, context: Context) {
         let paragraph = NSMutableParagraphStyle()
         paragraph.lineSpacing = settings.lineSpacing
-        paragraph.paragraphSpacing = settings.lineSpacing
+        paragraph.paragraphSpacing = max(2, settings.lineSpacing * 0.5)
         paragraph.lineBreakMode = .byWordWrapping
 
         uiView.attributedText = NSAttributedString(
