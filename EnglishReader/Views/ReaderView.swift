@@ -68,7 +68,7 @@ struct ReaderView: View {
             }
             .sheet(item: $selectedEntry) { entry in
                 DictionarySheet(entry: entry)
-                    .presentationDetents([.height(260)])
+                    .presentationDetents([.height(320)])
             }
             .alert("未收录", isPresented: Binding(
                 get: { selectedMissingWord != nil },
@@ -226,11 +226,11 @@ struct ReaderView: View {
     }
 
     private func pageTopInset(from proxy: GeometryProxy) -> CGFloat {
-        max(proxy.safeAreaInsets.top + 8, 16)
+        proxy.safeAreaInsets.top + 5
     }
 
     private func pageBottomInset(from proxy: GeometryProxy) -> CGFloat {
-        max(proxy.safeAreaInsets.bottom + 10, 18)
+        proxy.safeAreaInsets.bottom + 5
     }
 
     private func repaginate(pageSize: CGSize) {
