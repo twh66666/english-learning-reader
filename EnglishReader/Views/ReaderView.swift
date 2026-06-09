@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct ReaderView: View {
+    @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var libraryStore: BookLibraryStore
     @EnvironmentObject private var dictionaryService: DictionaryService
 
@@ -94,6 +95,13 @@ struct ReaderView: View {
 
     private var topBar: some View {
         HStack(spacing: 12) {
+            Button {
+                dismiss()
+            } label: {
+                Image(systemName: "chevron.left")
+                    .frame(width: 40, height: 40)
+            }
+
             Button {
                 isChaptersPresented = true
             } label: {
